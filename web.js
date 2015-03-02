@@ -24,7 +24,7 @@ if (!pub_key) throw new Error('no MAILGUN_PUBKEY')
 var domain = 'beaglelab.github.io'
 
 var mailgun = new Mailgun({apiKey: api_key, domain: domain})
-var newsletter = mailgun.lists('newsletter@beaglelab.github.io')
+var newsletter = mailgun.lists('newsletter@sandboxc5e90e5fb9e84a9eb572c4e8c6720c67.mailgun.org'/*'newsletter@beaglelab.github.io'*/)
 
 // rate limiting
 
