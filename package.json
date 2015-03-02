@@ -1,0 +1,25 @@
+{
+  "name": "beagle-mailinglist",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Richard Littauer <richard.littauer@gmail.com> (http://burntfen.com)",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.4.3",
+    "cors": "^2.4.1",
+    "express": "^4.6.1",
+    "express-rate": "0.0.1",
+    "logfmt": "^1.1.2",
+    "mailgun-js": "^0.5.1",
+    "mailgun-validate-email": "0.0.6",
+    "request": "^2.47.0",
+    "underscore": "^1.6.0"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}
