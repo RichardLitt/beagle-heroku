@@ -16,6 +16,8 @@ app.use(bodyParser.urlencoded()) // to support URL-encoded bodies
 
 var rate = require('express-rate')
 
+var auth = require('./auth.js')
+
 // setup mailgun
 var api_key = process.env.MAILGUN_KEY
 if (!api_key) throw new Error('no MAILGUN_KEY')
@@ -61,50 +63,62 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
-app.get('/email', rateMiddleware, function (req, res) {
-  var email = req.param('email')
-  if (typeof email == 'undefined') {
-    return res.send(405, 'No email')
-  }
+app.get('/signUp', rateMiddleware, function (req, res) {
+  console.log(req, res)
 
-  return handleEmail(email, res)
+  return
 })
 
-app.post('/email', rateMiddleware, function (req, res) {
-  var email = req.body && req.body.email
-  if (typeof email == 'undefined') {
-    return res.send(405, 'No email')
-  }
+app.get('/login', rateMiddleware, function (req, res) {
+  console.log('hello')
 
-  return handleEmail(email, res)
+  return
 })
 
-function handleEmail (email, res) {
-  email = email.trim()
-  validator(pub_key, email, function (err, result) {
-    if (err || !result.is_valid) {
-      console.error('validator failed. error then result')
-      console.error(err)
-      console.error(result)
-      return res.send(405, 'Email validation failed: ' + email)
-    }
+// app.get('/email', rateMiddleware, function (req, res) {
+//   var email = req.param('email')
+//   if (typeof email == 'undefined') {
+//     return res.send(405, 'No email')
+//   }
 
-    var user = { subscribed: true, address: email }
-    newsletter.members().create(user, function (err, data) {
-      if (err) {
-        var exists = 'Address already exists'
-        if (err.toString().search(exists) >= 0) {
-          return res.send('already subscribed ' + email)
-        }
+//   return handleEmail(email, res)
+// })
 
-        console.log(err)
-        return res.send(405, 'Failed to subscribe: ' + email)
-      }
+// app.post('/email', rateMiddleware, function (req, res) {
+//   var email = req.body && req.body.email
+//   if (typeof email == 'undefined') {
+//     return res.send(405, 'No email')
+//   }
 
-      res.send('subscribed ' + data.member.address)
-    })
-  })
-}
+//   return handleEmail(email, res)
+// })
+
+// function handleEmail (email, res) {
+//   email = email.trim()
+//   validator(pub_key, email, function (err, result) {
+//     if (err || !result.is_valid) {
+//       console.error('validator failed. error then result')
+//       console.error(err)
+//       console.error(result)
+//       return res.send(405, 'Email validation failed: ' + email)
+//     }
+
+//     var user = { subscribed: true, address: email }
+//     newsletter.members().create(user, function (err, data) {
+//       if (err) {
+//         var exists = 'Address already exists'
+//         if (err.toString().search(exists) >= 0) {
+//           return res.send('already subscribed ' + email)
+//         }
+
+//         console.log(err)
+//         return res.send(405, 'Failed to subscribe: ' + email)
+//       }
+
+//       res.send('subscribed ' + data.member.address)
+//     })
+//   })
+// }
 
 var port = Number(process.env.PORT || 5000)
 app.listen(port, function () {
