@@ -13,9 +13,11 @@ var PouchDB = require('pouchdb')
 PouchDB.plugin(require('pouchdb-authentication'))
 var db = new PouchDB(process.env.POUCH_DEV_DB)
 
+console.log(process.env.POUCH_DEV_DB)
+
 var request = require('request')
 // TODO These could probably be the same package
-var sha256 = require("crypto-js/sha256");
+var sha256 = require("crypto-js/sha256")
 var crypto = require('crypto')
 
 // authServerKey SHOULD NOT be leaked.
@@ -41,15 +43,15 @@ var githubClientID = process.env.GITHUB_CLIENT_ID
 //   token: process.env.GITHUB_ACCESS_TOKEN
 // }
 
-
 module.exports.signup = exports.signup = function signup (beagleUsername, oauthInfo, clientcb) {
-
   verifyOAuthToken(oauthInfo, function (err, res) {
     if (err != null) {
       // ok something went wrong
-      clientcb('error ... ', err)
+      clientcb('Failed to verify OAuth token', err)
       return
     }
+
+    console.log(beagleUsername, oauthInfo)
 
     // ok looks good. we can signup user.
 
@@ -60,7 +62,7 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
     // random string deterministically generated (so we can login
     // later, too). let's say this is:
     var salt = crypto.randomBytes(20).toString('hex')
-    var pass = sha256( beagleUsername + authServerKey + salt )
+    var pass = beagleUsername + authServerKey + salt //sha256(beagleUsername + authServerKey + salt)
 
     var user = {
       username: beagleUsername,
@@ -75,46 +77,55 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
       }
     }
 
-    db.signup(user.username, user.password, user, function (err, response) {
-      if (err != null) {
-        // failed to sign up
-        clientcb('error ... ', err)
-        return
+    db.signup(user.username, user.password, { metadata: user }, function (err, response) {
+      console.log(user)
+      if (err) {
+        if (err.name === 'conflict') {
+          // "batman" already exists, choose another username
+          return clientcb('User already rexists, choose another username', err)
+        } else if (err.name === 'forbidden') {
+          return clientcb('invalid username', err)
+          // invalid username
+        } else {
+          return clientcb('Act of god caused not to work', err)
+          // HTTP error, cosmic rays, etc.
+        }
+      } else {
+        // ok we're signed up. return the session id to the client
+        return clientcb(null, response)
       }
-
-      // ok we're signed up. return the session id to the client
-      clientcb(null, response)
     })
   })
 }
 
 module.exports.login = exports.login = function login (beagleUsername, oauthInfo, clientcb) {
   // first, check beagleUsername matches oauthtoken
-  verifyOAuthUser(beagleUsername, oauthInfo, function(err) {
+  verifyOAuthUser(beagleUsername, oauthInfo, function (err) {
     if (err != null) {
       // ok something went wrong
-      clientcb('error ... ')
+      clientcb('Failed to verify OAauth User')
       return
     }
 
     // ok, beaglename checks out as matching oauthinfo.
 
-    verifyOAuthToken(oauthInfo, function(err) {
+    verifyOAuthToken(oauthInfo, function (err) {
       if (err != null) {
         // ok something went wrong
-        clientcb('error ... ')
+        clientcb('Failed to verify OAuth token')
         return
       }
 
       // ok looks good. we can login user.
-      var user = db.getUser(beagleuser, function (err, user) {
-        var pass = sha256( user.name + authServerKey + user.salt )
+      return db.getUser(beagleUsername, function (err, user) {
+        if (err) throw new Error('Unable to get User')
+        var pass = sha256(user.name + authServerKey + user.salt)
 
         // or whatever
-        couchdb.login(user.name, pass, function (err, response) {
+        db.login(user.name, pass, function (err, response) {
           if (err != null) {
             // failed to log in
-            clientcb('error ... ', err)
+            clientcb('Failed to login user', err)
             return
           }
           // ok we're logged up, should send back sessionID
@@ -125,27 +136,36 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
     })
   })
 
-// }
-
-
-// check that beagleUser matches oauthInfo.
-function verifyOAuthUser(beagleUser, oauthInfo, cb) {
-
-  var user = db.users.get({username: beagleuser})
-
-  // check the provider + accounts match
-  var ok = (user.oauthInfo.provider == oauthInfo.provider) &&
-       (user.oauthInfo.account == oauthInfo.account)
-
-  // TODO what happens here? 
-  if (!ok) {
-    cb('error ...')
-  } else {
-    cb(null, ...)
-  }
 }
 
-function verifyOAuthToken (beagleUser, oauthInfo, cb) {
+// check that beagleUser matches oauthInfo.
+function verifyOAuthUser (beagleUser, oauthInfo, cb) {
+  var user = db.getUser(beagleUser, function (err, response) {
+    if (err) {
+      if (err.name === 'not_found') {
+        console.log('User name not found.')
+        // TODO Sign up user then?
+        // typo or lacking privs
+      } else {
+        console.log('There was some error with getting the user', err)
+        // Some other error
+      }
+    } else {
+      // check the provider + accounts match
+      var ok = (user.oauthInfo.provider === oauthInfo.provider) &&
+           (user.oauthInfo.account === oauthInfo.account)
+
+      if (!ok) {
+        cb('Unable to verify Oauth user.')
+      } else {
+        cb(null)
+      }
+    }
+  })
+
+}
+
+function verifyOAuthToken (oauthInfo, cb) {
   if (oauthInfo.provider === 'github') {
     return request({
         method: 'GET',

@@ -63,14 +63,36 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
+var oauthInfo = {
+  provider: 'github',
+  user: 'RichardLitt',
+  token: process.env.GITHUB_ACCESS_TOKEN
+}
+
 app.get('/signUp', rateMiddleware, function (req, res) {
-  console.log(req, res)
+  auth.signup(oauthInfo.user, oauthInfo, function (err, response) {
+    if (err) {
+      console.log(err)
+      process.exit(1)
+    }
+
+    console.log(response)
+  })
+  // console.log(req, res)
 
   return
 })
 
 app.get('/login', rateMiddleware, function (req, res) {
-  console.log('hello')
+  auth.login(oauthInfo.user, oauthInfo, function (err, result) {
+    if (err) {
+      console.log(err)
+      process.exit(1)
+    }
+
+    console.log(result)
+
+  })
 
   return
 })
