@@ -12,6 +12,7 @@
 var PouchDB = require('pouchdb')
 PouchDB.plugin(require('pouchdb-authentication'))
 var db = new PouchDB(process.env.POUCH_DEV_DB)
+var btoa = require('btoa')
 
 console.log(process.env.POUCH_DEV_DB)
 
@@ -61,8 +62,8 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
     // we are good. We thus set the password to a user-specific
     // random string deterministically generated (so we can login
     // later, too). let's say this is:
-    var salt = crypto.randomBytes(20).toString('hex')
-    var pass = beagleUsername + authServerKey + salt //sha256(beagleUsername + authServerKey + salt)
+    var salt = crypto.randomBytes(10).toString('hex')
+    var pass = sha256(beagleUsername + authServerKey + salt)
 
     var user = {
       username: beagleUsername,
@@ -119,10 +120,18 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
       // ok looks good. we can login user.
       return db.getUser(beagleUsername, function (err, user) {
         if (err) throw new Error('Unable to get User')
-        var pass = sha256(user.name + authServerKey + user.salt)
+        var password = sha256(user.name + authServerKey + user.salt)
+
+        var ajaxOpts = {
+          ajax: {
+            headers: {
+              Authorization: 'Basic ' + btoa(user.name + ':' + password)
+            }
+          }
+        }
 
         // or whatever
-        db.login(user.name, pass, function (err, response) {
+        db.login(user.name, password, ajaxOpts, function (err, response) {
           if (err != null) {
             // failed to log in
             clientcb('Failed to login user', err)
