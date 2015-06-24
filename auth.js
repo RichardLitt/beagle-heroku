@@ -140,7 +140,7 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
 
 // check that beagleUser matches oauthInfo.
 function verifyOAuthUser (beagleUser, oauthInfo, cb) {
-  var user = db.getUser(beagleUser, function (err, response) {
+  db.getUser(beagleUser, function (err, response) {
     if (err) {
       if (err.name === 'not_found') {
         console.log('User name not found.')
@@ -152,8 +152,8 @@ function verifyOAuthUser (beagleUser, oauthInfo, cb) {
       }
     } else {
       // check the provider + accounts match
-      var ok = (user.oauthInfo.provider === oauthInfo.provider) &&
-           (user.oauthInfo.account === oauthInfo.account)
+      var ok = (response.oauthInfo.provider === oauthInfo.provider) &&
+           (response.oauthInfo.account === oauthInfo.account)
 
       if (!ok) {
         cb('Unable to verify Oauth user.')
