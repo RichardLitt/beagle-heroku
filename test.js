@@ -33,7 +33,7 @@ var oauthInfo = {
 //   if (err) {
 //     console.log(err)
 //   } else {
-//     console.log('res', res)
+//     console.log('Signed Up User', res)
 //   }
 // })
 
@@ -41,6 +41,6 @@ auth.login(oauthInfo.user, oauthInfo, function (err, res) {
   if (err) {
     console.log(err)
   } else {
-    console.log('res', res)
+    console.log('Logged In', res)
   }
 })

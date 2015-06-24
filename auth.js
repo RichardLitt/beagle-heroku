@@ -14,17 +14,13 @@ PouchDB.plugin(require('pouchdb-authentication'))
 var db = new PouchDB(process.env.POUCH_DEV_DB)
 var btoa = require('btoa')
 
-console.log(process.env.POUCH_DEV_DB)
-
 var request = require('request')
 // TODO These could probably be the same package
-var sha256 = require("crypto-js/sha256")
 var crypto = require('crypto')
 
 // authServerKey SHOULD NOT be leaked.
 var authServerKey = process.env.AUTHSERVERKEY
 var githubClientID = process.env.GITHUB_CLIENT_ID
-
 
 // get this from the client's request
 // var oauthInfo = {
@@ -51,9 +47,6 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
       clientcb('Failed to verify OAuth token', err)
       return
     }
-
-    console.log(beagleUsername, oauthInfo)
-
     // ok looks good. we can signup user.
 
     // the password is basically not used to authenticate at all.
@@ -62,14 +55,15 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
     // we are good. We thus set the password to a user-specific
     // random string deterministically generated (so we can login
     // later, too). let's say this is:
-    var salt = crypto.randomBytes(10).toString('hex')
-    var pass = sha256(beagleUsername + authServerKey + salt)
+    var salt2 = crypto.randomBytes(10).toString('hex')
+    var key = beagleUsername + authServerKey + salt2
+    var pass = crypto.createHash('sha256').update(key).digest('hex')
 
     var user = {
       username: beagleUsername,
       password: pass,
       metadata: {
-        salt: salt, // store salt in user somewhere
+        salt2: salt2, // store salt2 in user somewhere
         oauthInfo: { // store the oauth data somwhere.
           provider: oauthInfo.provider,
           account: oauthInfo.account,
@@ -79,7 +73,6 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
     }
 
     db.signup(user.username, user.password, { metadata: user.metadata }, function (err, response) {
-      console.log(user)
       if (err) {
         if (err.name === 'conflict') {
           // "batman" already exists, choose another username
@@ -88,7 +81,7 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
           return clientcb('invalid username', err)
           // invalid username
         } else {
-          return clientcb('Act of god caused not to work', err)
+          return clientcb(err, 'Act of god caused not to work')
           // HTTP error, cosmic rays, etc.
         }
       } else {
@@ -119,8 +112,12 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
 
       // ok looks good. we can login user.
       return db.getUser(beagleUsername, function (err, user) {
-        if (err) throw new Error('Unable to get User')
-        var password = sha256(user.name + authServerKey + user.salt)
+        if (err) {
+          throw new Error('Unable to get User')
+        }
+
+        var key = user.name + authServerKey + user.salt2
+        var password = crypto.createHash('sha256').update(key).digest('hex')
 
         var ajaxOpts = {
           ajax: {
@@ -130,11 +127,14 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
           }
         }
 
+        console.log('password', btoa(user.name + ':' + password))
+
         // or whatever
         db.login(user.name, password, ajaxOpts, function (err, response) {
+          console.log(err)
           if (err != null) {
             // failed to log in
-            clientcb('Failed to login user', err)
+            clientcb(err, 'Failed to login user', err)
             return
           }
           // ok we're logged up, should send back sessionID
