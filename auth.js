@@ -11,7 +11,7 @@
 
 var PouchDB = require('pouchdb')
 PouchDB.plugin(require('pouchdb-authentication'))
-var db = new PouchDB(process.env.POUCH_DEV_DB)
+var db = new PouchDB(process.env.POUCH_DEV_DB, {skipSetup: true})
 var btoa = require('btoa')
 
 var request = require('request')
