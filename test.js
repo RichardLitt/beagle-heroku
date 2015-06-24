@@ -29,7 +29,15 @@ var oauthInfo = {
   token: process.env.GITHUB_ACCESS_TOKEN
 }
 
-auth.signup(oauthInfo.user, oauthInfo, function (err, res) {
+// auth.signup(oauthInfo.user, oauthInfo, function (err, res) {
+//   if (err) {
+//     console.log(err)
+//   } else {
+//     console.log('res', res)
+//   }
+// })
+
+auth.login(oauthInfo.user, oauthInfo, function (err, res) {
   if (err) {
     console.log(err)
   } else {
