@@ -77,12 +77,12 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
       }
     }
 
-    db.signup(user.username, user.password, { metadata: user }, function (err, response) {
+    db.signup(user.username, user.password, { metadata: user.metadata }, function (err, response) {
       console.log(user)
       if (err) {
         if (err.name === 'conflict') {
           // "batman" already exists, choose another username
-          return clientcb('User already rexists, choose another username', err)
+          return clientcb('User already exists, choose another username', err)
         } else if (err.name === 'forbidden') {
           return clientcb('invalid username', err)
           // invalid username
