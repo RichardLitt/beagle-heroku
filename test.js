@@ -22,25 +22,39 @@
 // })
 
 var auth = require('./auth.js')
-
+var argv = require('minimist')(process.argv.slice(2))
 var oauthInfo = {
   provider: 'github',
   user: 'RichardLitt',
   token: process.env.GITHUB_ACCESS_TOKEN
 }
 
-// auth.signup(oauthInfo.user, oauthInfo, function (err, res) {
-//   if (err) {
-//     console.log(err)
-//   } else {
-//     console.log('Signed Up User', res)
-//   }
-// })
+switch (argv.r) {
+  case 'signup':
+    signup(oauthInfo)
+    break
+  case 'login':
+    login(oauthInfo)
+    break
+}
 
-auth.login(oauthInfo.user, oauthInfo, function (err, res) {
-  if (err) {
-    console.log(err)
-  } else {
-    console.log('Logged In', res)
-  }
-})
+
+function signup (oauthInfo) {
+  auth.signup(oauthInfo.user, oauthInfo, function (err, res) {
+    if (err) {
+      console.log(err)
+    } else {
+      console.log('Signed Up User', res)
+    }
+  })
+}
+
+function login (oauthInfo) {
+  auth.login(oauthInfo.user, oauthInfo, function (err, res) {
+    if (err) {
+      console.log(err)
+    } else {
+      console.log('Logged In', res)
+    }
+  })
+}
