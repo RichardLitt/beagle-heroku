@@ -2,9 +2,9 @@
 
 // var validator = require('mailgun-validate-email');
 // validator got screwed up. todo make out own module.
-var validator = require('./validator') // for now this
+// var validator = require('./validator') // for now this
 
-var Mailgun = require('mailgun-js')
+// var Mailgun = require('mailgun-js')
 var express = require('express')
 var logfmt = require('logfmt')
 var cors = require('cors')
@@ -23,10 +23,10 @@ var api_key = process.env.MAILGUN_KEY
 if (!api_key) throw new Error('no MAILGUN_KEY')
 var pub_key = process.env.MAILGUN_PUBKEY
 if (!pub_key) throw new Error('no MAILGUN_PUBKEY')
-var domain = 'beaglelab.github.io'
+// var domain = 'beaglelab.github.io'
 
-var mailgun = new Mailgun({apiKey: api_key, domain: domain})
-var newsletter = mailgun.lists(process.env.MAILGUN_LIST_ID)
+// var mailgun = new Mailgun({apiKey: api_key, domain: domain})
+// var newsletter = mailgun.lists(process.env.MAILGUN_LIST_ID)
 
 // rate limiting
 
@@ -63,11 +63,11 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
-var oauthInfo = {
-  provider: 'github',
-  user: 'RichardLitt',
-  token: process.env.GITHUB_ACCESS_TOKEN
-}
+// var oauthInfo = {
+//   provider: 'github',
+//   user: 'RichardLitt',
+//   token: process.env.GITHUB_ACCESS_TOKEN
+// }
 
 app.get('/signUp', rateMiddleware, function (req, res) {
   auth.signup(oauthInfo.user, oauthInfo, function (err, response) {
