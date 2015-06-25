@@ -69,7 +69,8 @@ app.get('/', function (req, res) {
 //   token: process.env.GITHUB_ACCESS_TOKEN
 // }
 
-app.get('/signUp', rateMiddleware, function (req, res) {
+app.post('/signUp', rateMiddleware, function (req, res) {
+  console.log(req, res)
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.send(405, 'Invalid paramaters used to sign up')
@@ -85,7 +86,7 @@ app.get('/signUp', rateMiddleware, function (req, res) {
   })
 })
 
-app.get('/login', rateMiddleware, function (req, res) {
+app.post('/login', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.send(405, 'Invalid paramaters used to log in')
