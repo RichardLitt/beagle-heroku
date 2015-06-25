@@ -72,7 +72,7 @@ app.get('/', function (req, res) {
 app.get('/signUp', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
-    req.send('Invalid paramaters used to sign up')
+    res.send(405, 'Invalid paramaters used to sign up')
   }
 
   return auth.signup(params.userId, params.oauthInfo, function (err, response) {
@@ -88,7 +88,7 @@ app.get('/signUp', rateMiddleware, function (req, res) {
 app.get('/login', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
-    req.send('Invalid paramaters used to log in')
+    res.send(405, 'Invalid paramaters used to log in')
   }
 
   return auth.login(params.userId, params.oauthInfo, function (err, response) {
