@@ -127,11 +127,8 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
           }
         }
 
-        console.log('password', btoa(user.name + ':' + password))
-
         // or whatever
         db.login(user.name, password, ajaxOpts, function (err, response) {
-          console.log(err)
           if (err != null) {
             // failed to log in
             clientcb(err, 'Failed to login user', err)

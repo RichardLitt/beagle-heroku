@@ -21,7 +21,7 @@
     "mailgun-js": "^0.5.1",
     "mailgun-validate-email": "0.0.6",
     "pouchdb": "^3.6.0",
-    "pouchdb-authentication": "^0.4.0",
+    "pouchdb-authentication": "RichardLitt/pouchdb-authentication#41fe7d7",
     "request": "^2.47.0",
     "underscore": "^1.6.0"
   },
