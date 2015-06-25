@@ -70,31 +70,35 @@ app.get('/', function (req, res) {
 // }
 
 app.get('/signUp', rateMiddleware, function (req, res) {
-  auth.signup(oauthInfo.user, oauthInfo, function (err, response) {
+  var params = req.body
+  if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
+    req.send(405, 'Invalid paramaters used to sign up')
+  }
+
+  return auth.signup(params.userId, params.oauthInfo, function (err, response) {
     if (err) {
       console.log(err)
       process.exit(1)
     }
 
-    console.log(response)
+    return response
   })
-  // console.log(req, res)
-
-  return
 })
 
 app.get('/login', rateMiddleware, function (req, res) {
-  auth.login(oauthInfo.user, oauthInfo, function (err, result) {
+  var params = req.body
+  if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
+    req.send(405, 'Invalid paramaters used to log in')
+  }
+
+  return auth.login(params.userId, params.oauthInfo, function (err, response) {
     if (err) {
       console.log(err)
       process.exit(1)
     }
 
-    console.log(result)
-
+    return response
   })
-
-  return
 })
 
 // app.get('/email', rateMiddleware, function (req, res) {
