@@ -79,7 +79,6 @@ app.post('/signUp', rateMiddleware, function (req, res) {
   return auth.signup(params.userId, params.oauthInfo, function (err, response) {
     if (err) {
       console.log(err)
-      process.exit(1)
     }
 
     return response
@@ -95,7 +94,6 @@ app.post('/login', rateMiddleware, function (req, res) {
   return auth.login(params.userId, params.oauthInfo, function (err, response) {
     if (err) {
       console.log(err)
-      process.exit(1)
     }
 
     return response
