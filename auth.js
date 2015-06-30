@@ -85,6 +85,8 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
   })
 }
 
+module.exports.signUp = exports.signUp = exports.signup
+
 module.exports.login = exports.login = function login (beagleUsername, oauthInfo, clientcb) {
   // first, check beagleUsername matches oauthtoken
   verifyOAuthUser(beagleUsername, oauthInfo, function (err) {
@@ -129,6 +131,8 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
     })
   })
 }
+
+module.exports.logIn = exports.logIn = exports.logIn
 
 // check that beagleUser matches oauthInfo.
 function verifyOAuthUser (beagleUser, oauthInfo, cb) {
