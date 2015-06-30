@@ -187,19 +187,16 @@ function verifyOAuthToken (oauthInfo, cb) {
       }
     )
   } else if (oauthInfo.provider === 'google') {
-    request({
-        method: 'GET',
-        uri: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + oauthInfo.token
-      },
-      function (err, res, body) {
-        if (err != null) {
+    request.get('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + oauthInfo.token,
+      function (error, response, body) {
+        if (error) {
+          return cb('Error: Unable to access Google OAuth')
+        } else if (response.statusCode !== 200) {
           return cb('Error: Google token is invalid')
+        } else if (body.user_id !== oauthInfo.account) {
+          return cb('Error: That token is not associated with that account')
         } else {
-          if (body.user_id === oauthInfo.account) {
-            return cb(null, body)
-          } else {
-            return cb('Error: That token is not associated with that account')
-          }
+          return cb(null, body)
         }
       }
     )
