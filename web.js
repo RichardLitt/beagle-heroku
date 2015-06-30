@@ -12,7 +12,7 @@ var app = express()
 
 var bodyParser = require('body-parser')
 app.use(bodyParser.json())       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded()) // to support URL-encoded bodies
+app.use(bodyParser.urlencoded({extended: true})) // to support URL-encoded bodies
 
 var rate = require('express-rate')
 
@@ -73,7 +73,7 @@ app.post('/signUp', rateMiddleware, function (req, res) {
   console.log(req, res)
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
-    res.send(405, 'Invalid paramaters used to sign up')
+    res.status(405).send('Invalid paramaters used to sign up')
   }
 
   return auth.signup(params.userId, params.oauthInfo, function (err, response) {
@@ -88,7 +88,7 @@ app.post('/signUp', rateMiddleware, function (req, res) {
 app.post('/login', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
-    res.send(405, 'Invalid paramaters used to log in')
+    res.status(405).send('Invalid paramaters used to log in')
   }
 
   return auth.login(params.userId, params.oauthInfo, function (err, response) {
