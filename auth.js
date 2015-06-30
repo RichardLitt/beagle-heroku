@@ -184,7 +184,7 @@ function verifyOAuthToken (oauthInfo, cb) {
           return cb('Error: Unable to access Google OAuth')
         } else if (response.statusCode !== 200) {
           return cb('Error: Google token is invalid')
-        } else if (body.user_id !== oauthInfo.account) {
+        } else if (JSON.parse(body).user_id !== oauthInfo.account) {
           return cb('Error: That token is not associated with that account')
         } else {
           return cb(null, body)
