@@ -63,14 +63,8 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
-// var oauthInfo = {
-//   provider: 'github',
-//   user: 'RichardLitt',
-//   token: process.env.GITHUB_ACCESS_TOKEN
-// }
 
 app.post('/signUp', rateMiddleware, function (req, res) {
-  console.log(req, res)
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.status(405).send('Invalid paramaters used to sign up')

@@ -15,10 +15,8 @@ var db = new PouchDB(process.env.POUCH_DEV_DB, {skipSetup: true})
 var btoa = require('btoa')
 
 var request = require('request')
-// TODO These could probably be the same package
 var crypto = require('crypto')
 
-// authServerKey SHOULD NOT be leaked.
 var authServerKey = process.env.AUTHSERVERKEY
 var githubClientID = process.env.GITHUB_CLIENT_ID
 
@@ -43,11 +41,8 @@ var githubClientID = process.env.GITHUB_CLIENT_ID
 module.exports.signup = exports.signup = function signup (beagleUsername, oauthInfo, clientcb) {
   verifyOAuthToken(oauthInfo, function (err, res) {
     if (err != null) {
-      // ok something went wrong
-      clientcb('Failed to verify OAuth token', err)
-      return
+      return clientcb('Failed to verify OAuth token: ' + err)
     }
-    // ok looks good. we can signup user.
 
     // the password is basically not used to authenticate at all.
     // we use it merely because couchdb forces us to. At this point
@@ -63,8 +58,8 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
       username: beagleUsername,
       password: pass,
       metadata: {
-        salt2: salt2, // store salt2 in user somewhere
-        oauthInfo: { // store the oauth data somwhere.
+        salt2: salt2,
+        oauthInfo: {
           provider: oauthInfo.provider,
           account: oauthInfo.account,
           token: oauthInfo.token
@@ -75,11 +70,9 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
     db.signup(user.username, user.password, { metadata: user.metadata }, function (err, response) {
       if (err) {
         if (err.name === 'conflict') {
-          // "batman" already exists, choose another username
           return clientcb('User already exists, choose another username', err)
         } else if (err.name === 'forbidden') {
-          return clientcb('invalid username', err)
-          // invalid username
+          return clientcb('Invalid username', err)
         } else {
           return clientcb(err, 'Act of god caused not to work')
           // HTTP error, cosmic rays, etc.
@@ -96,24 +89,19 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
   // first, check beagleUsername matches oauthtoken
   verifyOAuthUser(beagleUsername, oauthInfo, function (err) {
     if (err != null) {
-      // ok something went wrong
-      clientcb('Failed to verify OAauth User')
-      return
+      return clientcb('Failed to verify OAauth User: ' + err)
     }
 
     // ok, beaglename checks out as matching oauthinfo.
 
     verifyOAuthToken(oauthInfo, function (err) {
       if (err != null) {
-        // ok something went wrong
-        clientcb('Failed to verify OAuth token')
-        return
+        return clientcb('Failed to verify OAuth token ' + err)
       }
 
-      // ok looks good. we can login user.
       return db.getUser(beagleUsername, function (err, user) {
         if (err) {
-          throw new Error('Unable to get User')
+          clientcb('Unable to get User: ' + err)
         }
 
         var key = user.name + authServerKey + user.salt2
@@ -131,8 +119,7 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
         db.login(user.name, password, ajaxOpts, function (err, response) {
           if (err != null) {
             // failed to log in
-            clientcb(err, 'Failed to login user', err)
-            return
+            return clientcb('Failed to login user: ' + err)
           }
           // ok we're logged up, should send back sessionID
           clientcb(null, response)
@@ -141,7 +128,6 @@ module.exports.login = exports.login = function login (beagleUsername, oauthInfo
 
     })
   })
-
 }
 
 // check that beagleUser matches oauthInfo.
@@ -149,12 +135,13 @@ function verifyOAuthUser (beagleUser, oauthInfo, cb) {
   db.getUser(beagleUser, function (err, response) {
     if (err) {
       if (err.name === 'not_found') {
-        console.log('User name not found.')
+        cb(err)
+        // console.log('User name not found.')
         // TODO Sign up user then?
         // typo or lacking privs
       } else {
         console.log('There was some error with getting the user', err)
-        // Some other error
+        cb(err)
       }
     } else {
       // check the provider + accounts match
@@ -162,7 +149,7 @@ function verifyOAuthUser (beagleUser, oauthInfo, cb) {
            (response.oauthInfo.account === oauthInfo.account)
 
       if (!ok) {
-        cb('Unable to verify Oauth user.')
+        cb('Error: Unable to verify Oauth user.')
       } else {
         cb(null)
       }
@@ -201,6 +188,6 @@ function verifyOAuthToken (oauthInfo, cb) {
       }
     )
   } else {
-    throw new Error('OAuth provider not provided')
+    return cb('Error: OAuth provider not provided')
   }
 }
