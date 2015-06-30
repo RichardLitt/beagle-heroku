@@ -164,13 +164,15 @@ function verifyOAuthUser (beagleUser, oauthInfo, cb) {
 
 function verifyOAuthToken (oauthInfo, cb) {
   if (oauthInfo.provider === 'github') {
-    return request({
+    request({
         method: 'GET',
         uri: 'https://' + oauthInfo.account + ':' + oauthInfo.token + '@api.github.com/user',
         headers: { 'User-Agent': githubClientID}
       },
-      function (err, res, body) {
-        if (err != null) {
+      function (error, response, body) {
+        if (error) {
+          return cb('Error: Unable to access GitHub Oauth provider')
+        } else if (response.statusCode !== 200) {
           return cb('Error: GitHub token is invalid')
         } else {
           return cb(null, body)
