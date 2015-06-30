@@ -64,7 +64,7 @@ app.get('/', function (req, res) {
 })
 
 
-app.post('/signUp', rateMiddleware, function (req, res) {
+app.get('/signUp', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.status(405).send('Invalid paramaters used to sign up')
@@ -72,14 +72,16 @@ app.post('/signUp', rateMiddleware, function (req, res) {
 
   return auth.signup(params.userId, params.oauthInfo, function (err, response) {
     if (err) {
+      // TODO Add in status codes to all error messages
       console.log(err)
+      res.status(401).send(err)
+    } else {
+      res.status(200).send(response)
     }
-
-    return response
   })
 })
 
-app.post('/login', rateMiddleware, function (req, res) {
+app.get('/login', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.status(405).send('Invalid paramaters used to log in')
@@ -88,9 +90,11 @@ app.post('/login', rateMiddleware, function (req, res) {
   return auth.login(params.userId, params.oauthInfo, function (err, response) {
     if (err) {
       console.log(err)
+      // TODO Use appropriate status code
+      res.status(400).send(err)
+    } else {
+      res.status(200).send(response)
     }
-
-    return response
   })
 })
 
