@@ -1,5 +1,3 @@
-// web.js
-
 // var validator = require('mailgun-validate-email');
 // validator got screwed up. todo make out own module.
 // var validator = require('./validator') // for now this
@@ -63,17 +61,16 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
-
 app.get('/signUp', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.status(405).send('Invalid paramaters used to sign up')
+    return
   }
 
   return auth.signup(params.userId, params.oauthInfo, function (err, response) {
     if (err) {
       // TODO Add in status codes to all error messages
-      console.log(err)
       res.status(401).send(err)
     } else {
       res.status(200).send(response)
@@ -82,9 +79,11 @@ app.get('/signUp', rateMiddleware, function (req, res) {
 })
 
 app.get('/login', rateMiddleware, function (req, res) {
+  console.log(req.body)
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.status(405).send('Invalid paramaters used to log in')
+    return
   }
 
   return auth.login(params.userId, params.oauthInfo, function (err, response) {
