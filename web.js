@@ -8,6 +8,11 @@ var logfmt = require('logfmt')
 var cors = require('cors')
 var app = express()
 
+app.use(function (req, res, next) {
+  console.log(req.originalUrl)
+  next()
+})
+
 var bodyParser = require('body-parser')
 app.use(bodyParser.json())       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({extended: true})) // to support URL-encoded bodies
@@ -56,6 +61,10 @@ var rateMiddleware = rate.middleware({handler: rateHandler,
 
 app.use(logfmt.requestLogger())
 app.use(cors())
+app.use(function (req, res, next) {
+  console.log(req.params, req.query, req.body)
+  next()
+})
 
 app.get('/', function (req, res) {
   res.send('Hello World!')
