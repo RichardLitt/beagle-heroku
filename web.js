@@ -70,7 +70,7 @@ app.get('/', function (req, res) {
   res.send('Hello World!')
 })
 
-app.get('/signUp', rateMiddleware, function (req, res) {
+app.post('/signUp', rateMiddleware, function (req, res) {
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
     res.status(405).send('Invalid paramaters used to sign up')
@@ -87,7 +87,7 @@ app.get('/signUp', rateMiddleware, function (req, res) {
   })
 })
 
-app.get('/login', rateMiddleware, function (req, res) {
+app.post('/login', rateMiddleware, function (req, res) {
   console.log(req.body)
   var params = req.body
   if (typeof params.userId === 'undefined' || typeof params.oauthInfo === 'undefined') {
