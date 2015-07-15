@@ -16,6 +16,7 @@ var btoa = require('btoa')
 
 var request = require('request')
 var crypto = require('crypto')
+var moment = require('moment')
 
 var authServerKey = process.env.AUTHSERVERKEY
 var githubClientID = process.env.GITHUB_CLIENT_ID
@@ -59,6 +60,9 @@ module.exports.signup = exports.signup = function signup (beagleUsername, oauthI
       password: pass,
       metadata: {
         salt2: salt2,
+        email: oauthInfo.email,
+        avatar: oauthInfo.avatar,
+        created: moment(),
         oauthInfo: {
           provider: oauthInfo.provider,
           account: oauthInfo.account,
