@@ -20,6 +20,7 @@
     "logfmt": "^1.1.2",
     "mailgun-js": "^0.5.1",
     "mailgun-validate-email": "0.0.6",
+    "moment": "^2.10.3",
     "pouchdb": "^3.6.0",
     "pouchdb-authentication": "RichardLitt/pouchdb-authentication#41fe7d7",
     "request": "^2.47.0",
