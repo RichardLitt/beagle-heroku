@@ -27,7 +27,7 @@
     "underscore": "^1.6.0"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "6.11.1"
   },
   "devDependencies": {
     "minimist": "^1.1.1"
